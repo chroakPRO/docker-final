@@ -1,0 +1,55 @@
+
+# --- ALL CONTAINERS --#
+services:
+
+
+  # --- CONTAINER -----#
+  traefik:
+    container_name: traefik
+    
+    build:
+      context: ./traefik
+      dockerfile: Dockerfile
+ 
+    restart: always
+    # networks
+    networks:
+      - traefik
+
+#docker run -d --restart=always -p 3001:3001 -v uptime-kuma:/app/data --name uptime-kuma louislam/uptime-kuma:1
+  # --- CONTAINER -----#
+  uptime-kuma:
+
+    build:
+      image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+
+    ports:
+      - "3001:3001"
+    
+    volumes:
+      - uptime-kuma:/app/data
+
+
+
+
+
+  # --- CONTAINER -----#
+  rest-api:
+
+    build:
+      context: ./Rest-api
+      dockerfile: Dockerfile
+
+    resources:
+      limits:
+        memory: "100m"
+        cpu: "0.2"
+
+    # networks
+    networks:
+      - traefik
+
+volumes:
+  uptime-kuma:

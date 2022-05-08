@@ -1,0 +1,39 @@
+version: '3.3'
+
+services:
+  https-portal:
+    image: steveltn/https-portal:1
+    ports:
+      - '443:443'
+    links:
+      - uptime-kuma
+    restart: always
+    environment:
+      DOMAINS: 'status.dev0ps.app -> http://uptime-kuma:3001'
+      STAGE: 'production' # Don't use production until staging works
+      # FORCE_RENEW: 'true'
+      WEBSOCKET: 'true'
+    volumes:
+      - https-portal-data:/var/lib/https-portal
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    volumes:
+      - ./uptime-kuma:/app/data
+    ports:
+      - 3001:3001
+
+  nginx:
+    image: nginx:latest
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /home/ubuntu/rstudio_docker/nginx.conf:/etc/nginx/nginx.conf
+      - /home/ubuntu/ssl:/ssl/
+
+volumes:
+  https-portal-data:
